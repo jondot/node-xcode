@@ -15,7 +15,7 @@ exports.setUp = function (callback) {
 exports.addBuildPhase = {
     'should return a pbxBuildPhase': function (test) {
         var buildPhase = proj.addBuildPhase(['file.m'], 'PBXSourcesBuildPhase', 'My build phase');
-        
+
         test.ok(typeof buildPhase === 'object');
         test.done()
     },
@@ -31,7 +31,7 @@ exports.addBuildPhase = {
             var file = buildPhase.files[index];
             test.ok(file.value);
         }
-        
+
         test.done()
     },
     'should add the PBXBuildPhase object correctly': function (test) {
@@ -47,11 +47,11 @@ exports.addBuildPhase = {
     'should add each of the files to PBXBuildFile section': function (test) {
         var buildPhase = proj.addBuildPhase(['file.m', 'assets.bundle'], 'PBXResourcesBuildPhase', 'My build phase').buildPhase,
             buildFileSection = proj.pbxBuildFileSection();
-        
+
         for (var index = 0; index < buildPhase.files.length; index++) {
             var file = buildPhase.files[index];
             test.ok(buildFileSection[file.value]);
-        }  
+        }
 
         test.done();
     },
@@ -60,12 +60,12 @@ exports.addBuildPhase = {
             fileRefSection = proj.pbxFileReferenceSection(),
             buildFileSection = proj.pbxBuildFileSection(),
             fileRefs = [];
-        
+
         for (var index = 0; index < buildPhase.files.length; index++) {
             var file = buildPhase.files[index],
                 fileRef = buildFileSection[file.value].fileRef;
-                
-            test.ok(fileRefSection[fileRef]);            
+
+            test.ok(fileRefSection[fileRef]);
         }
 
         test.done();
@@ -75,7 +75,7 @@ exports.addBuildPhase = {
             initialFileReferenceSectionItemsCount = Object.keys(fileRefSection),
             buildPhase = proj.addBuildPhase(['AppDelegate.m', 'main.m'], 'PBXResourcesBuildPhase', 'My build phase').buildPhase,
             afterAdditionBuildFileSectionItemsCount = Object.keys(fileRefSection);
-        
+
         test.deepEqual(initialFileReferenceSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
         test.done();
     },
@@ -84,7 +84,7 @@ exports.addBuildPhase = {
             initialBuildFileSectionItemsCount  = Object.keys(buildFileSection),
             buildPhase = proj.addBuildPhase(['AppDelegate.m', 'main.m'], 'PBXResourcesBuildPhase', 'My build phase').buildPhase,
             afterAdditionBuildFileSectionItemsCount = Object.keys(buildFileSection);
-        
+
         test.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
         test.done();
     },
@@ -94,15 +94,22 @@ exports.addBuildPhase = {
             initialFileReferenceSectionItemsCount = Object.keys(fileRefSection),
             buildPhase = proj.addBuildPhase(['file.m', 'AppDelegate.m'], 'PBXResourcesBuildPhase', 'My build phase').buildPhase,
             afterAdditionBuildFileSectionItemsCount = Object.keys(fileRefSection);
-        
+
         for (var index = 0; index < buildPhase.files.length; index++) {
             var file = buildPhase.files[index],
                 fileRef = buildFileSection[file.value].fileRef;
-                
-            test.ok(fileRefSection[fileRef]);            
+
+            test.ok(fileRefSection[fileRef]);
         }
-        
+
         test.deepEqual(initialFileReferenceSectionItemsCount.length, afterAdditionBuildFileSectionItemsCount.length - 2);
         test.done();
-    }
+    },
+    'should add a Run Script build phase object': function (test) {
+        var p = proj.addBuildPhase( [], 'PBXShellScriptBuildPhase', 'run this script', null, null, null, 'echo "hello"');
+
+        test.equal(p.buildPhase.shellPath, '/bin/sh');
+        test.equal(p.buildPhase.shellScript, '"echo \\"hello\\""');
+        test.done();
+    },
 }
